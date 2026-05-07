@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Dict
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import and_, desc, func, select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import get_current_user
@@ -30,7 +30,6 @@ async def workout_progress(
 
     # Sessioni completate ultima settimana
     week_ago = datetime.utcnow() - timedelta(days=7)
-    month_ago = datetime.utcnow() - timedelta(days=30)
 
     result = await db.execute(
         select(WorkoutSession)
@@ -174,10 +173,10 @@ async def weekly_summary(
     )
     logs = logs_result.scalars().all()
     nutrition_data = {
-        "total_calories_logged": sum(l.calories for l in logs),
-        "avg_daily_calories": round(sum(l.calories for l in logs) / 7, 1),
-        "total_protein_g": sum(l.protein_g or 0 for l in logs),
-        "days_logged": len({l.logged_at.date() for l in logs}),
+        "total_calories_logged": sum(log.calories for log in logs),
+        "avg_daily_calories": round(sum(log.calories for log in logs) / 7, 1),
+        "total_protein_g": sum(log.protein_g or 0 for log in logs),
+        "days_logged": len({log.logged_at.date() for log in logs}),
     }
 
     # Profilo utente

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict
+from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -74,7 +74,7 @@ async def login(body: LoginRequest):
         result = supabase.auth.sign_in_with_password(
             {"email": body.email, "password": body.password}
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=401, detail="Credenziali non valide")
 
     session = result.session

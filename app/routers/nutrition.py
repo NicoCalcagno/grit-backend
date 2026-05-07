@@ -1,10 +1,10 @@
 import base64
 import uuid
-from datetime import datetime, date
-from typing import Dict, List, Optional
+from datetime import datetime
+from typing import Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import and_, desc, func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from supabase import create_client
 
@@ -13,7 +13,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.models.nutrition import DietPlan, FoodLog, NutritionInsight, WaterLog
 from app.models.user import User
-from app.models.workout import WeeklyPlan, WorkoutSession
+from app.models.workout import WorkoutSession
 from app.schemas.nutrition import (
     DietPlanResponse,
     FoodLogCreate,
@@ -192,10 +192,10 @@ async def nutrition_summary(
     )
     logs = logs_result.scalars().all()
 
-    total_calories = sum(l.calories for l in logs)
-    total_protein = sum(l.protein_g or 0 for l in logs)
-    total_carbs = sum(l.carbs_g or 0 for l in logs)
-    total_fat = sum(l.fat_g or 0 for l in logs)
+    total_calories = sum(log.calories for log in logs)
+    total_protein = sum(log.protein_g or 0 for log in logs)
+    total_carbs = sum(log.carbs_g or 0 for log in logs)
+    total_fat = sum(log.fat_g or 0 for log in logs)
 
     # Acqua del giorno
     water_result = await db.execute(
@@ -340,8 +340,6 @@ async def regenerate_diet_day(
         "tdee": user.tdee,
         "available_days": user.available_days,
     }
-    is_training = body.day.lower() in [d.lower() for d in (user.available_days or [])]
-
     new_day_plan = await claude_service.generate_diet_plan(
         user_profile, user.available_days or []
     )
@@ -379,21 +377,21 @@ async def generate_insights(
     logs = logs_result.scalars().all()
     logs_data = [
         {
-            "food_name": l.food_name,
-            "meal_type": l.meal_type,
-            "calories": l.calories,
-            "protein_g": l.protein_g,
-            "carbs_g": l.carbs_g,
-            "fat_g": l.fat_g,
+            "food_name": log.food_name,
+            "meal_type": log.meal_type,
+            "calories": log.calories,
+            "protein_g": log.protein_g,
+            "carbs_g": log.carbs_g,
+            "fat_g": log.fat_g,
         }
-        for l in logs
+        for log in logs
     ]
 
     totals = {
-        "calories": sum(l.calories for l in logs),
-        "protein_g": sum(l.protein_g or 0 for l in logs),
-        "carbs_g": sum(l.carbs_g or 0 for l in logs),
-        "fat_g": sum(l.fat_g or 0 for l in logs),
+        "calories": sum(log.calories for log in logs),
+        "protein_g": sum(log.protein_g or 0 for log in logs),
+        "carbs_g": sum(log.carbs_g or 0 for log in logs),
+        "fat_g": sum(log.fat_g or 0 for log in logs),
     }
 
     # Cerca workout di oggi

@@ -1,6 +1,6 @@
 import base64
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 from urllib.parse import urlencode
 
 import httpx

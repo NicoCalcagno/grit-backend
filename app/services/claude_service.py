@@ -177,19 +177,19 @@ Rispondi SOLO con il JSON."""
 
 
 async def analyze_food_photo(image_base64: str, meal_type: str) -> List[Dict[str, Any]]:
-    prompt = f"""Analizza questa immagine di cibo e identifica tutti gli alimenti presenti.
+    prompt = """Analizza questa immagine di cibo e identifica tutti gli alimenti presenti.
 Per ogni alimento, stima calorie e macronutrienti basandoti su una porzione tipica.
 
 Rispondi con un JSON array:
 [
-  {{
+  {
     "food_name": "nome alimento",
     "quantity_grams": 100,
     "calories": 200,
     "protein_g": 10,
     "carbs_g": 25,
     "fat_g": 8
-  }}
+  }
 ]
 
 Sii preciso ma onesto sulle stime. Rispondi SOLO con il JSON array."""

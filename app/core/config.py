@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     spotify_redirect_uri: str = "http://localhost:8000/spotify/callback"
     supabase_url: str
     supabase_service_key: str
-    jwt_secret: str
+    jwt_secret: str = ""  # usato solo per token legacy HS256
     database_url: str
     claude_model: str = "claude-sonnet-4-20250514"
 
