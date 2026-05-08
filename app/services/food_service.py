@@ -1,11 +1,16 @@
+import logging
 import time
 from typing import Any, Dict, List, Optional
 
 import httpx
 
+logger = logging.getLogger(__name__)
+
 BASE_URL = "https://world.openfoodfacts.org"
 _cache: Dict[str, tuple[Any, float]] = {}
 CACHE_TTL = 3600  # 1 ora
+
+USER_AGENT = "GritApp/1.0 (https://github.com/nicocalcagno/grit-backend; nicolo.calcagno@aitho.it)"
 
 
 def _parse_product(product: Dict) -> Optional[Dict]:
@@ -30,7 +35,7 @@ async def get_by_barcode(barcode: str) -> Optional[Dict]:
     if cached and time.time() - cached[1] < CACHE_TTL:
         return cached[0]
 
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=20, headers={"User-Agent": USER_AGENT}) as client:
         resp = await client.get(f"{BASE_URL}/api/v0/product/{barcode}.json")
         resp.raise_for_status()
         data = resp.json()
@@ -50,7 +55,7 @@ async def search_food(query: str, page_size: int = 20) -> List[Dict]:
     if cached and time.time() - cached[1] < CACHE_TTL:
         return cached[0]
 
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=20, headers={"User-Agent": USER_AGENT}) as client:
         resp = await client.get(
             f"{BASE_URL}/cgi/search.pl",
             params={
